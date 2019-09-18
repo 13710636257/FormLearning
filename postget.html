@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		
+	</head>
+
+	<body>
+		<div id="test">
+			<!--ajax是如何创建的，有哪些参数-->
+			ajax的意思就是用javascript执行异步网络请求
+			<ul class="list"></ul>
+		</div>
+		<script src="js/jquery-1.9.1.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			$(document).ready(function() { 
+				const baceUrl ="https://wx.gmzx.com/wxApp/index/navTop.json"
+				$.ajax({            
+						url: 'text.json', //后台请求的数据  这里获取的是本地的json数据
+			            dataType: "json", //数据格式 
+			            type: "GET", //请求方式
+			            async: true, //是否异步请求  默认为true
+			           success: function(data) {   //如果请求成功，返回数据。
+							console.log(data); 
+//							var html = "";            
+//							for(var i = 0; i < data['skills'].length; i++) {    //遍历data数组                 
+//								var dataList = data['skills'][i]    
+//								console.log(dataList)                  
+//								html += "<p>测试：" + dataList + "</p>";               
+//							}              
+//							$("#test").html(html); //在html页面id=test的标签里显示html内容
+							
+							//使用$.each方法遍历返回数据data，
+							var str="";
+							$.each(data.skills,function(index,item){
+								str += "<li>测试：" + item + "</li>";               
+							})
+							$(".list").append(str); //在html页面id=test的标签里显示html内容
+						  
+						},
+					fail: function() {}         
+				})  
+				
+//				还可以通过$.getJSON来获取本地json文件
+
+				$.getJSON('text.json',function(data){
+					var str="";
+					$.each(data.skills,function(index,item){
+						str += "<li>测试：" + item + "</li>";               
+					})
+					$(".list").append(str); //在html页面id=test的标签里显示html内容
+				})
+				
+				    
+			})
+
+					
+		</script>
+	
+	</body>
+
+</html>

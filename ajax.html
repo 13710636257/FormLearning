@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>get和post的区别</title>
+		<script src="js/jquery-1.9.1.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<div> 查看地址 https://www.cnblogs.com/duxiu-fang/archive/2019/05/24/10920097.html</div>
+		<div id="text"></div>
+		<script type="text/javascript">
+			'use strict'
+			function ajaxLog(s){
+				var txt = $('#text');
+			 	txt.text(s);
+			}
+			const baceUrl ="https://wx.gmzx.com/wxApp/index/navTop.json"
+			
+			var jqxhr = $.get('text.json',{
+				dataType:'json'
+			
+			}).done(function(data){
+				console.log(data)
+				ajaxLog('成功, 收到的数据: ' + JSON.stringify(data,null,""));
+				
+			}).fail(function(xhr,status){
+				ajaxLog('失败: ' + xhr.status);
+				
+			}).always(function(){
+				ajaxLog('请求完成：无论成功或者失败都会调用');
+			})
+//			get和post的区别
+//			第一点：
+//			get重点在从服务器上获取资源，post重点在向服务器发送数据；
+//			第二点：
+//			get传输数据是通过URL请求，以field（字段）= value的形式，置于URL后，并用"?"连接，多个请求数据间用"&"连接，如http://127.0.0.1/Test/login.action?name=admin&password=admin，这个过程用户是可见的；
+//			post传输数据通过Http的post机制，将字段与对应值封存在请求实体中发送给服务器，这个过程对用户是不可见的；
+//			第三点：
+//			Get传输的数据量小，因为受URL长度限制，但效率较高；
+//			Post可以传输大量数据，所以上传文件时只能用Post方式；
+//			第四点：
+//			get是不安全的，因为URL是可见的，可能会泄露私密信息，如密码等；
+//			post较get安全性较高；
+//			第五点：
+//			get方式只能支持ASCII字符，向服务器传的中文字符可能会乱码。
+//			post支持标准字符集，可以正确传递中文字符。
+
+	//post()和get()类似，但是传入的第二个参数默认被序列化为application/x-www-form-urlencoded：
+	//jQuery.post(url, [data], [callback], [type])
+	//		url:发送请求地址。
+	//		data:待发送 Key/value 参数。
+	//		callback:发送成功时回调函数。
+	//		type:返回内容格式，xml, html, script, json, text, _default。
+
+			var jqPost = $.post(
+				'<%=basePath%>appointment_baoMingAjax',
+				{
+				  name: "John",
+				  time: "2pm"
+				},
+				function(data) {
+					
+				},'json').error(function(data){
+					
+				})
+
+
+
+		</script>
+	</body>
+</html>

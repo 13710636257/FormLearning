@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="https://static.gmzx.com/ydui/build/js/ydui.flexible.js"></script>
+		<script src="https://static.gmzx.com/js/layer_mobile/layer.js"></script>
+		<script src="js/jquery-1.9.1.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+		#ziliao {
+		    width: 100%;
+		    height: 100%;
+		    position: fixed;
+		    left: 0;
+		    bottom: 0;
+		    border: none;
+		    background: rgba(0, 0, 0, 0.5) !important;
+		    background: #fff;
+		    box-sizing: border-box;
+		}
+		.close_btn{position: absolute;left: 3.55rem;top: 2.35rem;}
+		.close_btn i{color: #fff;font-size: 0.58rem;}
+		
+		.info-box{
+			width: 85%;
+    		padding:0.2rem;
+		    font-size: 0.28rem;
+		    background: #fff;
+		    position: absolute;
+		    top: 50%;
+		    left: 50%;
+		    transform: translate(-50%, -50%);
+		    -moz-transform: translate(-50%, -50%);
+		    -webkit-transform: translate(-50%, -50%);
+		}
+			
+		/* 完善资料 */
+		.info {width: 100%; text-align: center;padding: 0.25rem 0;}
+		.info ul li{display: block;height:0.75rem;margin-top: 0.12rem;
+		   color: black;border: 1px solid #eee;display: flex;justify-content: space-between;align-items: center;}
+		.info ul li input {width: 100%;height: 93%;border: none; padding-left: 0.15rem;}
+		.info ul li .code {width: 66%; border: 1px solid #eee;}
+		.info ul li .w-all {width: 32%;height: 93%; border: 1px solid #eee;}
+		.info ul li .num-code {display:inline-block;width: 32%;line-height: 0.68rem;border: 1px solid #eee;}
+		
+		/* 提交按钮 */
+		.info .btn{display: inline-block;width: 5.22rem;height: 0.72rem;line-height: 0.72rem;
+		    text-align: center;margin-top: 0.18rem;border-radius: 0.04rem;font-size: 0.32rem; font-weight: 600; background: #f62566; color: #FFFFFF;}
+		</style>
+	</head>
+	<body>
+		<div class="main">
+			<div id="ziliao">
+		        <div class="close_btn" onclick="Gmobject.domHide('#ziliao')">
+		            <i class="icon-error-outline"></i>
+		        </div>
+		        <div class="info-box">
+		            <h2 style="text-align: center;padding:0.2rem 0;font-size: 0.32rem;color: #000;">完善资料</h2>
+		            <div class="info">
+		                <ul>
+		                	<!--没有name属性的<input>的数据不会被提交。-->
+		                    <li style="margin-top: 0;">
+		                        <input name="name" id="name" type="text" value="" placeholder="请输入您的真实姓名" />
+		                    </li>
+		                    <li>
+		                        <input name="phone" id="phone" type="text" value="" placeholder="请输入您的手机号码"/>
+		                    </li>
+		                    <!--图片验证码-->
+		                    <li style="border: none">
+		                        <input id="piccode" name="piccode"  type="text" value="" placeholder="请输入图片验证码" class="code"/>
+		                        
+		                        <img class="w-all" src="<%=basePath %>index_yzm?lenth=4" 
+		                            onclick="this.src='<%=basePath %>index_yzm?d='+Math.random();" />
+		                    </li>
+							<!--手机验证码-->
+		                    <li style="border: none">
+		                        <input id="phoneCode" name="phoneCode"  type="text" value="" placeholder="请输入短信验证码" class="code">
+		                        <span id="bcode" class="num-code" onclick="postVcode();">获取验证码</span>
+		                    </li>
+		                </ul>
+		                <button class="btn-submin btn" onclick="submint()">立即提交</button>	
+		                <button type="reset">重置</button>
+		            </div>  
+		        </div>
+		    </div>
+		</div>
+		
+		<script type="text/javascript">
+			//获取验证码
+			//发送手机验证码  需先填写图片验证码
+			function postVcode(){
+//				$.trim()方法用于去除字符串两端的空白
+				var phone = $.trim($('#phone').val());
+				var piccode =$('#piccode').val();
+				//创建一个匹配手机号码的正则表达式
+				var myreg = /^[1][3,4,5,6,7,8][0-9]{9}$/;
+				
+				if(!phone){
+					alert('手机号码不能为空');
+					$('#phone').focus();
+					return;
+				}
+				
+				if(!myreg.test(phone)) {
+					alert('11位手机号码格式不对，请重新输入');
+					$('#phone').focus();
+					return;
+				}
+				
+				if(!piccode) {
+					alert('请先输入图片验证码');
+					return;
+				}
+				//将获取验证码的事件取消绑定
+				$('#bcode').unbind('click');
+				//disabled 禁用属性
+				$('#bcode').attr('disabled','disabled');
+				
+				$.post(
+					"<%=basePath%>sms_taobaoYzm",
+					{phone: phone,code:piccode},
+					function(res){
+						if (res.success){
+							$('#bcode').text('60秒后获取');		        		
+							var i = 60;
+							var sto = function(){
+								$('#bcode').unbind('click');
+								if (--i > 0) {
+									$('#bcode').text(i+'秒后获取');
+									setTimeout(sto, 1000);
+								} else {
+									$('#bcode').text('重新获取');		        	      		
+									$('#bcode').removeAttr('disabled');
+									$('#bcode').bind('click',_code);
+								}
+							}	
+							setTimeout(sto,1000);
+					  }else{
+						  $('#bcode').removeAttr('disabled');
+						  $('#bcode').bind('click',_code);
+						  //Gmzx.Msg.alert(ret.msg,1);
+						  alert("该号码接收有异常,请联系系统管理员!");
+					  }
+					},
+					"json"
+				);
+			}
+			
+//			提交数据
+			var flag = true; //防止用户在短时间内重复点击
+			function submint(){
+				var name = $('#name').val();
+				var phone = $.trim($('#phone').val());
+				var piccode =$('#piccode').val();
+				if (!name || !phone || !phoneCode || !/^0?1[3|4|5|7|8][0-9]\d{8}$/i.test(phone) || !/^[\u4e00-\u9fa5]{2,4}$/i.test(name) ) {
+					alert('请输入准确信息！',1);
+					return;
+				};
+				
+				if(flag){
+					//loading层
+					var loading=layer.open({type: 2});
+					flag=false;
+					var jqxhr = $.post(
+						  "<%=basePath%>appointment_baoMingAjax",
+						  {
+						  	name:name,
+						  	phone:phone,
+						  	phoneCode:phoneCode,
+							address:address,
+							channel:'${param.channel}',
+							alias:'${param.alias}'
+						  },
+						  function(data) {
+							  flag=true;
+							  layer.close(loading);
+							  
+							  callbackControl(data,function(){
+							  	window.location.reload();
+							  });
+						},'json');
+						
+					jqxhr.error(function(e) {
+						flag=true;
+						layer.close(loading);
+						alert("操作失败,请稍后再试",1);
+					});
+				}
+
+			};
+			
+			//回调函数
+			function callbackControl(data,succFunc,failFunc){
+				if(!data) {
+					return;
+				};
+				if(data.success) {
+					if(typeof succFunc === 'function' && succFunc() === false) {
+						return;
+					};
+				};
+				
+				if(!data.success) {
+					if(typeof failFunc === 'function' && failFunc() === false) {
+						return;
+					}
+				};
+				
+				if(data.showMsg) {
+					alert(data.msg,1);	
+				}
+				
+				if(data.redirect) {
+					window.location.href=data.url;
+				}
+					
+			}
+			
+//			重置
+		
+			
+		</script>
+	</body>
+</html>
